@@ -1,6 +1,6 @@
 <script>
     import { Modal, Hr, Label, Input, Card, Textarea, Select, Timepicker, Button, P, List, Li, Radio} from "flowbite-svelte";
-    import { CloseOutline, EditOutline, ExclamationCircleOutline, ForwardStepOutline } from "flowbite-svelte-icons";
+    import { CloseOutline, EditOutline, ExclamationCircleOutline, ForwardStepOutline, TrashBinSolid, FileCloneSolid } from "flowbite-svelte-icons";
     import { onMount } from 'svelte';
     import { slide } from 'svelte/transition';
 
@@ -304,7 +304,7 @@ END:VCALENDAR`;
 
     <!-- List of Created Events -->
     {#if events.length > 0}
-        <Card class="p-4 m-5" size="lg">
+        <Card class="p-4 m-5 sm:p-6 md:p-8 w-5/6 bg-gray-100">
             <h1 class="text-center uppercase font-bold text-2xl">Created Event(s)</h1>
 
             <!-- List all the create events -->
@@ -327,22 +327,50 @@ END:VCALENDAR`;
                         <!-- Edit and delete btns -->
                         <div class="text-right mt-1">
 
+                            <!-- Duplicate current event btn -->
+                            <Button size="sm" class="h-5 p-3" onclick={() => {
+                                //create a new event with same values
+                                const duplicateEvent = {
+                                    // title: event.title,
+                                    // description: event.description,
+                                    // month:event.selectedMonth,
+                                    // date:event.selectedDate,
+                                    // year:event.selectedYear,
+                                    // startTime: event.startTime,
+                                    // endTime: event.endTime,
+
+                                    //cleaner way
+                                    ...event,
+
+                                    // UTC time format: YYYYMMDDTHHmmssZ
+                                    start: toUTCISOString(event.selectedYear, event.selectedMonth, event.selectedDate, event.startTime),
+                                    end: toUTCISOString(event.selectedYear, event.selectedMonth, event.selectedDate, event.endTime)
+                                }
+                                
+                                //add duplicate event into event list
+                                events = [...events, duplicateEvent];
+                            }}>
+                                <FileCloneSolid/>
+                            </Button>
+                            
+                           
+
+                            <!-- Edit btn -->
+                            <Button size="sm" class="h-5 p-3" onclick={() => {
+                                    // Open edit event modal
+                                    edit_popupModal = true;
+                                    event_to_edit = event;
+                                }}>
+                                <EditOutline/>
+                            </Button>
+                            
                             <!-- Delete btn -->
                             <Button size="sm" class="h-5 p-3" onclick={() => {
                                 // Confirm delete event msg
                                 delete_popupModal = true;
                                 event_to_delete = event;
                             }}> 
-                                <CloseOutline/>
-                            </Button>
-
-                            <!-- Edit btn -->
-                            <Button size="sm" class="h-5 p-3" onclick={() => {
-                                // Open edit event modal
-                                edit_popupModal = true;
-                                event_to_edit = event;
-                            }}>
-                                <EditOutline/>
+                                <TrashBinSolid/>
                             </Button>
 
                         </div>
