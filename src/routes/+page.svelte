@@ -1,5 +1,5 @@
 <script>
-    import { Modal, Hr, Label, Input, Card, Textarea, Select, Timepicker, Button, P, List, Li, Radio} from "flowbite-svelte";
+    import { Modal, Hr, Label, Input, Card, Textarea, Select, Timepicker, Button, P, List, Li, Radio, Toggle} from "flowbite-svelte";
     import { CloseOutline, EditOutline, ExclamationCircleOutline, ForwardStepOutline, TrashBinSolid, FileCloneSolid } from "flowbite-svelte-icons";
     import { onMount } from 'svelte';
     import { slide } from 'svelte/transition';
@@ -22,6 +22,7 @@
         selectedDate = dateObj.getDate();
         selectedMonth = dateObj.getMonth()+1; // Months are 0-indexed in JS Date
         selectedYear = dateObj.getFullYear();
+        isQuickMode = false;
     });
 
     // Months for the dropdown
@@ -65,7 +66,7 @@
 
         // error handling: ensure all fields are filled (besides description)
         if (!title) {
-            alert("Please fill in all required fields.");
+            alert("Please enter a valid event title!");
             return;
         }
 
@@ -76,8 +77,8 @@
             month:selectedMonth,
             date:selectedDate,
             year:selectedYear,
-            startTime: startTime,
-            endTime: endTime,
+            startTime: startTime, //24 hr format
+            endTime: endTime, //24 hr format
             // // UTC time format: YYYYMMDDTHHmmssZ
             start: toUTCISOString(selectedYear, selectedMonth, selectedDate, startTime),
             end: toUTCISOString(selectedYear, selectedMonth, selectedDate, endTime)
@@ -112,6 +113,7 @@
     let event_to_edit;
 
     // Convert military time (24hr) to regular time (12hr)
+        //Purpose: for displaying created events
     function toRegTime(militaryTime){
 
         //format: hh:mm
@@ -125,6 +127,14 @@
         const mins = militaryTime.split(':')[1];
       
         return (hrs + ':' + mins + ' ' + AmPM);
+    }
+
+    function toMilitaryTime(hr, isAM){
+        hr = Number(hr);
+        if (isAM === "am") //12 AM -> 00
+            return hr===12? padNum(0) : padNum(hr);
+        else //12 PM -> 12
+            return hr===12? padNum(12) : padNum(hr+12);
     }
 
 
@@ -166,66 +176,152 @@ END:VCALENDAR`;
 
     // quick mode
     let isQuickMode = false;
+    let dateText;
+    let startTimeText;
+    let endTimeText;
+    let isStartAM = true;
+    let isEndAM = true;
+    let selectedStartAM = "am";
+    let selectedEndAM = "am";
+
+
+    //helper function that parse out the month, day, and year from MM/DD/YYYY format
+    function parseDate()
+    {
+        // dataText format : mm/dd/yyyy
+        const [mm, dd, yyyy] = dateText.split('/').map(x=>x.trim());
+        selectedMonth = Number(mm);
+        selectedDate = dd;
+        selectedYear = yyyy;
+    }
+
+    //helper fucntion parse out the start and end times and ensure it is in 24 hr HH:MM format
+    function parseTime()
+    {
+        const [start_hh, start_mm] = startTimeText.split(':').map(x => x.trim());
+        console.log(start_hh + " " + start_mm);
+        const [end_hh, end_mm] = endTimeText.split(':').map(x => x.trim());
+        console.log(end_hh + " " + end_mm);
+
+        startTime = toMilitaryTime(start_hh, selectedStartAM) + ':' + start_mm;
+        console.log("st: " + startTime);
+        endTime = toMilitaryTime(end_hh, selectedEndAM) + ':' + end_mm;
+        console.log("et: " + endTime);
+    }
+
+    //function that grabs all the text data and create event when in quick mode
+    function createQuickEvent(){
+        if (title != '') {
+            parseDate();
+            parseTime();
+            createEvent();
+            //clear out date, start and end time field and amPM radio buttons
+            dateText = '';
+            startTimeText = '';
+            endTimeText = '';
+            isStartAM = true;
+            isEndAM = true;
+            selectedStartAM = "am";
+            selectedEndAM = "am";
+        }
+        else
+            alert("Please enter a valid event title!");
+            return;
+    }
+
 </script>
 
 <div class="flex flex-col items-center">
 
-    <div class="flex flex-col items-center m-5">
+    <div class="flex flex-col items-center m-5 mb-10">
         <!-- Title -->
         <h1 class="text-center uppercase font-bold text-3xl mb-3">Apple Calendar Event Tool</h1>
 
         <!-- Description -->
-        <p class="text-center text-gray-700">A simple tool to create and download Apple Calendar (.ics) event files. Perfect for adding events to your calendar quickly and easily.</p>
+        <p class="text-justify text-gray-700 w-5/6 sm:w-2/5 text-based">A simple tool to create and download Apple Calendar (.ics) event files. Perfect for adding events to your calendar quickly and easily.</p>
     </div>
 
 
-        <!-- FUTURE IMPLEMENTATION: Quick mode -->
-    {#if isQuickMode}
-        <form class="w-full flex flex-col items-center">
-            <Card class="p-4 sm:p-6 md:p-8 w-5/6">
-                <p class="text-sm italic text-right m-2">Try NORMAL Mode
-                    <Button size="sm" class="w-4 h-5" onclick={()=>{isQuickMode=!isQuickMode}}> <ForwardStepOutline class="shrink-0 h-4 w-4 inline-block" /></Button> 
-                </p>
-                <h1 class="text-center font-bold uppercase p-2">Quick Mode</h1>
+  
+    <div class="w-full">
 
-                <Input placeholder="Event TITLE..." bind:value={title}/>
+        <!-- QUICK MODE -->
+        {#if isQuickMode}
+            <form class=" flex flex-col items-center ">
 
-                <Textarea
-                        id="description-textarea" 
-                        placeholder="Event DESCRIPTION..."
-                        rows={2}
-                        name="description"
-                        class="w-full my-2"
-                        bind:value={description}
-                />
-                <Input placeholder="MM/DD/YYYY"/>
-
-                <div class="flex justify-between">
-                    <!-- Must write function to parse out value from text -->
-                    <Input placeholder="START time [HH:MM]" class="w-fit my-2"/> 
-                    <Radio name="startTimeAMPM" value="am">A.M.</Radio>
-                    <Radio name="startTimeAMPM" value="pm">P.M.</Radio>
+            
+                <!-- Quick mode toggle -->
+                <div class="ml-60 mb-2">
+                    <Toggle bind:checked={isQuickMode}><span class="italic mr-1">Quick </span> Mode</Toggle>
                 </div>
 
-                <div class="flex justify-between">
-                    <!-- Must write function to parse out value from text -->
-                    <Input placeholder="END time [HH:MM]" class="w-fit"/>
-                    <Radio name="endTimeAMPM" value="am">A.M.</Radio>
-                    <Radio name="endTimeAMPM" value="pm">P.M.</Radio>
-                </div>
-                <!-- New function to parse out start and end time -->
-                <Button class="w-fit mx-auto mt-5">Add Event</Button>
-            </Card>
-        </form>
-        {:else}
-            <!-- Event Form: Normal mode -->
-            <form class="w-full flex flex-col items-center">
-        
                 <Card class="p-4 sm:p-6 md:p-8 w-5/6">
-        
-                    <!-- <p class="text-sm italic text-right m-2">Try QUICK Mode 
-                        <Button size="sm" class="w-4 h-5" onclick={()=>{isQuickMode=!isQuickMode}}> <ForwardStepOutline class="shrink-0 h-4 w-4 inline-block" /></Button> 
-                    </p> -->
+                    
+                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white uppercase text-center">Quick Mode</h5>
+
+                    <p class="text-center">Type in all the text boxes. Be sure to follow the format!</p>
+
+                    <Hr class="mx-auto my-3 h-1 w-48 rounded-sm md:my-5"/>
+
+                    <h1 class="uppercase text-sm font-bold">Title</h1>
+                    <Input placeholder="Event TITLE..." bind:value={title}/>
+
+                    <h1 class="mt-2 uppercase text-sm font-bold">Description</h1>
+                    <Textarea
+                            id="description-textarea" 
+                            placeholder="Event DESCRIPTION..."
+                            rows={2}
+                            name="description"
+                            class="w-full mb-2"
+                            bind:value={description}
+                    />
+
+                    <h1 class="uppercase text-sm font-bold">Date</h1>
+                    <!-- Must parse out data -->
+                    <Input bind:value={dateText} placeholder="MM/DD/YYYY"/>
+
+
+                    <div class="flex justify-between mt-2"> 
+                        <h1 class="mr-2 my-auto uppercase text-sm font-bold">Start time</h1>
+
+                        <!-- Must write function to parse out value from text -->
+                        <Input bind:value={startTimeText} placeholder="HH:MM" class="w-1/2 my-2 mx-2"/> 
+
+                        <div class="w-1/2 flex justify-between">
+                            <Radio name="startTimeAMPM" value="am" bind:group={selectedStartAM}>A.M.</Radio>
+                            <Radio name="startTimeAMPM" value="pm" bind:group={selectedStartAM}>P.M.</Radio>
+                        </div>
+                        
+                    </div>
+
+                    <div class="flex justify-between"> 
+                        <h1 class="mr-4 my-auto uppercase text-sm font-bold">End time</h1>
+
+                        <!-- Must write function to parse out value from text -->
+                        <Input bind:value={endTimeText} placeholder="HH:MM" class="w-1/2 my-2 mx-2"/> 
+
+                        <div class="w-1/2 flex justify-between">
+                            <Radio name="endTimeAMPM" value="am" bind:group={selectedEndAM}>A.M.</Radio>
+                            <Radio name="endTimeAMPM" value="pm" bind:group={selectedEndAM}>P.M.</Radio>
+                        </div>
+                        
+                    </div>
+
+                    
+                    <!-- New function to parse out start and end time -->
+                    <Button class="w-fit mx-auto mt-5" onclick={createQuickEvent}>Add Event</Button>
+                </Card>
+            </form>
+        {:else}
+            <!-- Event Form: NORMAL MODE -->
+            <form class=" flex flex-col items-center ">
+
+                <!-- Quick mode toggle -->
+                <div class="ml-60 mb-2">
+                    <Toggle bind:checked={isQuickMode}><span class="italic mr-1">Quick </span> Mode</Toggle>
+                </div>
+                
+                <Card class="p-4 sm:p-6 md:p-8 w-5/6">
         
                     <!-- Event Header -->
                     <div class="text-center">
@@ -298,8 +394,9 @@ END:VCALENDAR`;
                 </Card>
         
             </form>
-
-    {/if}
+        {/if}
+    </div>
+   
             
 
     <!-- List of Created Events -->
@@ -324,7 +421,7 @@ END:VCALENDAR`;
                             <h1 class="inline-block">{toRegTime(event.startTime) + ' - ' + toRegTime(event.endTime)}</h1>
                         </div>
 
-                        <!-- Edit and delete btns -->
+                        <!-- Edit, delete, duplicate btns -->
                         <div class="text-right mt-1">
 
                             <!-- Duplicate current event btn -->
@@ -352,8 +449,7 @@ END:VCALENDAR`;
                             }}>
                                 <FileCloneSolid/>
                             </Button>
-                            
-                           
+                        
 
                             <!-- Edit btn -->
                             <Button size="sm" class="h-5 p-3" onclick={() => {
@@ -456,6 +552,8 @@ END:VCALENDAR`;
 
             <Button type="submit" size="sm" class="w-fit mx-auto mt-5" onclick={()=>{
 
+                event_to_edit.start = toUTCISOString(event_to_edit.year, event_to_edit.month, event_to_edit.date, event_to_edit.startTime);
+                event_to_edit.end = toUTCISOString(event_to_edit.year, event_to_edit.month, event_to_edit.date, event_to_edit.endTime);
 
                 // // re-add updated event
                 events = events;
