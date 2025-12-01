@@ -231,7 +231,7 @@ END:VCALENDAR`;
 
 </script>
 
-<div class="flex flex-col items-center">
+<div class="flex flex-col items-center max-w-full overflow-x-hidden">
 
     <div class="flex flex-col items-center m-5 mb-10">
         <!-- Title -->
