@@ -247,15 +247,15 @@ END:VCALENDAR`;
 
         <!-- QUICK MODE -->
         {#if isQuickMode}
-            <form class=" flex flex-col items-center p-15">
+            <form class=" flex flex-col items-center pb-15">
 
             
                 <!-- Quick mode toggle -->
-                <div class="ml-60 mb-2">
+                <div class="ml-50 mb-2">
                     <Toggle bind:checked={isQuickMode}><span class="italic mr-1">Quick </span> Mode</Toggle>
                 </div>
 
-                <Card class="p-4 sm:p-6 md:p-8 w-5/6 rounded-3xl shadow-2xl ">
+                <Card class="p-4 sm:p-6 md:p-8 w-5/6 rounded-2xl shadow-2xl ">
                     
                     <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white uppercase text-center">Quick Mode</h5>
 
@@ -285,7 +285,7 @@ END:VCALENDAR`;
                         <h1 class="mr-2 my-auto uppercase text-sm font-bold">Start time</h1>
 
                         <!-- Must write function to parse out value from text -->
-                        <Input bind:value={startTimeText} placeholder="HH:MM" class="w-1/2 my-2 mx-2"/> 
+                        <Input bind:value={startTimeText} placeholder="HH:MM" class="w-2/3 sm:w-1/2 my-2 mx-2"/> 
 
                         <div class="w-1/2 flex justify-between">
                             <Radio name="startTimeAMPM" value="am" bind:group={selectedStartAM}>A.M.</Radio>
@@ -298,7 +298,7 @@ END:VCALENDAR`;
                         <h1 class="mr-4 my-auto uppercase text-sm font-bold">End time</h1>
 
                         <!-- Must write function to parse out value from text -->
-                        <Input bind:value={endTimeText} placeholder="HH:MM" class="w-1/2 my-2 mx-2"/> 
+                        <Input bind:value={endTimeText} placeholder="HH:MM" class="w-2/3 sm:w-1/2 my-2 mx-2"/> 
 
                         <div class="w-1/2 flex justify-between">
                             <Radio name="endTimeAMPM" value="am" bind:group={selectedEndAM}>A.M.</Radio>
@@ -314,10 +314,10 @@ END:VCALENDAR`;
             </form>
         {:else}
             <!-- Event Form: NORMAL MODE -->
-            <form class="flex flex-col items-center p-15">
+            <form class="flex flex-col items-center pb-15">
 
                 <!-- Quick mode toggle -->
-                <div class="ml-60 mb-2">
+                <div class="ml-50 mb-2">
                     <Toggle bind:checked={isQuickMode}><span class="italic mr-1">Quick </span> Mode</Toggle>
                 </div>
                 
