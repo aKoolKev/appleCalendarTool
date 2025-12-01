@@ -427,28 +427,18 @@ END:VCALENDAR`;
             <Hr class="mx-auto my-3 h-1 w-48 rounded-sm md:my-5"/>
 
             <Button type="submit" size="sm" class="w-fit mx-auto mt-5" onclick={()=>{
-                edit_popupModal = false;
 
-                // delete it from array
-                events = events.filter(currEvent => currEvent !== event_to_edit);
 
-                //must update the start and end time to reflect the new time changes if any
-                // event_to_edit.start = event_to_edit.year + padNum(event_to_edit.month) + padNum(event_to_edit.date) + 'T'+ padNum(event_to_edit.startTime.split(':')[0]) + padNum(event_to_edit.startTime.split(':')[1]) +'00';
-                // event_to_edit.end = event_to_edit.year + padNum(event_to_edit.month) + padNum(event_to_edit.date) + 'T' + padNum(event_to_edit.endTime.split(':')[0]) +  padNum(event_to_edit.endTime.split(':')[1]) + '00'
-
-                event_to_edit.start = toUTCISOString(event_to_edit.year, event_to_edit.month, event_to_edit.date.event_to_edit.startTime);
-                event_to_edit.end = toUTCISOString(event_to_edit.year, event_to_edit.month, event_to_edit.date, event_to_edit.endTime);
-
-                // re-add it with updated info
-                events = [...events, event_to_edit];
+                // // re-add updated event
+                events = events;
           
                 // close modal
                 edit_popupModal = false;
 
                 // DEBUGGING:
-        events.forEach(event => {
-            console.log(event.title + ' ' + event.description + ' ' + event.start + ' ' + event.end);
-        });
+                events.forEach(event => {
+                    console.log(event.title + ' ' + event.description + ' ' + event.start + ' ' + event.end);
+                });
             }}>
                 Confirm Edit
             </Button>
