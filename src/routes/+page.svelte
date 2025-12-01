@@ -223,9 +223,9 @@ END:VCALENDAR`;
         
                 <Card class="p-4 sm:p-6 md:p-8 w-5/6">
         
-                    <p class="text-sm italic text-right m-2">Try QUICK Mode 
+                    <!-- <p class="text-sm italic text-right m-2">Try QUICK Mode 
                         <Button size="sm" class="w-4 h-5" onclick={()=>{isQuickMode=!isQuickMode}}> <ForwardStepOutline class="shrink-0 h-4 w-4 inline-block" /></Button> 
-                    </p>
+                    </p> -->
         
                     <!-- Event Header -->
                     <div class="text-center">
