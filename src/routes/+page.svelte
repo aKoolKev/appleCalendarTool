@@ -247,7 +247,7 @@ END:VCALENDAR`;
 
         <!-- QUICK MODE -->
         {#if isQuickMode}
-            <form class=" flex flex-col items-center ">
+            <form class=" flex flex-col items-center p-15">
 
             
                 <!-- Quick mode toggle -->
@@ -255,7 +255,7 @@ END:VCALENDAR`;
                     <Toggle bind:checked={isQuickMode}><span class="italic mr-1">Quick </span> Mode</Toggle>
                 </div>
 
-                <Card class="p-4 sm:p-6 md:p-8 w-5/6">
+                <Card class="p-4 sm:p-6 md:p-8 w-5/6 rounded-3xl shadow-2xl ">
                     
                     <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white uppercase text-center">Quick Mode</h5>
 
@@ -314,14 +314,14 @@ END:VCALENDAR`;
             </form>
         {:else}
             <!-- Event Form: NORMAL MODE -->
-            <form class=" flex flex-col items-center ">
+            <form class="flex flex-col items-center p-15">
 
                 <!-- Quick mode toggle -->
                 <div class="ml-60 mb-2">
                     <Toggle bind:checked={isQuickMode}><span class="italic mr-1">Quick </span> Mode</Toggle>
                 </div>
                 
-                <Card class="p-4 sm:p-6 md:p-8 w-5/6">
+                <Card class="p-4 sm:p-6 md:p-8 w-5/6 rounded-3xl shadow-2xl">
         
                     <!-- Event Header -->
                     <div class="text-center">
@@ -401,7 +401,7 @@ END:VCALENDAR`;
 
     <!-- List of Created Events -->
     {#if events.length > 0}
-        <Card class="p-4 m-5 sm:p-6 md:p-8 w-5/6 bg-gray-100">
+        <Card class="p-4 m-5 sm:p-6 md:p-8 w-5/6 bg-[#CDD1C7]">
             <h1 class="text-center uppercase font-bold text-2xl">Created Event(s)</h1>
 
             <!-- List all the create events -->
